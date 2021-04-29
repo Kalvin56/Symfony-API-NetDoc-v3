@@ -4,7 +4,10 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-
+    jwt_secret: SOME_SECRET
+    expire_jwt_secret : 600
+    jwt_refresh_secret: SOME_SECRET_2
+    expire_jwt_refresh_secret : 13140000
 services:
     # default configuration for services in *this* file
     _defaults:
