@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -23,6 +24,9 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Assert\Email(message = "L'email '{{ value }}' n'est pas valide.")
+     * @Groups({"show_doctor", "show_patient"})
+     * @Assert\NotBlank
      */
     private $email;
 
@@ -34,8 +38,19 @@ class User implements UserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Assert\NotBlank
      */
     private $password;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $date_register;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $type;
 
     public function getId(): ?int
     {
@@ -98,6 +113,18 @@ class User implements UserInterface
         return $this;
     }
 
+    public function getDateRegister(): ?\DateTimeInterface
+    {
+        return $this->date_register;
+    }
+
+    public function setDateRegister(\DateTimeInterface $date_register): self
+    {
+        $this->date_register = $date_register;
+
+        return $this;
+    }
+
     /**
      * Returning a salt is only needed, if you are not using a modern
      * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
@@ -116,5 +143,17 @@ class User implements UserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
     }
 }

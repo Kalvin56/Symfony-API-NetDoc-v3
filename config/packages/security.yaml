@@ -18,13 +18,13 @@ security:
             pattern:  ^/api/login
             stateless: true
             anonymous: true
-        doctor :
-            pattern : ^/api/doctor
-            anonymous : false
-            stateless : true
-            guard:
-                authenticators:
-                    - App\Security\JwtAuthAuthenticator
+        # doctor :
+        #     pattern : ^/api/doctor
+        #     anonymous : false
+        #     stateless : true
+        #     guard:
+        #         authenticators:
+        #             - App\Security\JwtAuthAuthenticator
         main:
             anonymous: true
             provider: app_user_provider
@@ -40,4 +40,4 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/api/doctor, roles: ROLE_DOCTOR }
+        # - { path: ^/api/doctor, roles: ROLE_DOCTOR }

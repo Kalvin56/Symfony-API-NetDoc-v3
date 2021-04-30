@@ -48,7 +48,7 @@ class JwtAuthAuthenticator extends AbstractGuardAuthenticator
                             );
             return $this->em->getRepository(User::class)
                     ->findOneBy([
-                            'email' => $jwt['data']->mail,
+                            'email' => $jwt['data']->email,
                     ]);
         }catch (\Exception $exception) {
                 throw new AuthenticationException($exception->getMessage());

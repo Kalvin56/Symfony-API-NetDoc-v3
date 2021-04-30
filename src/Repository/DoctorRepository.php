@@ -19,6 +19,19 @@ class DoctorRepository extends ServiceEntityRepository
         parent::__construct($registry, Doctor::class);
     }
 
+    /**
+    * @return Doctor[] Returns an array of Professional objects
+    */
+    public function findCities()
+    {
+        return $this->createQueryBuilder('p')
+            ->select('DISTINCT p.doctor_city')
+            ->orderBy('p.doctor_city', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     // /**
     //  * @return Doctor[] Returns an array of Doctor objects
     //  */
