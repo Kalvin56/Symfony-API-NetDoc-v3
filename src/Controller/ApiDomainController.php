@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ApiDomainController extends AbstractController
 {
-    #[Route('/api/domain', name: 'api_domain')]
+    #[Route('/api/domains', name: 'api_domain')]
     public function index(DomainRepository $domainRepository): Response
     {
         $data = $domainRepository->findAll();

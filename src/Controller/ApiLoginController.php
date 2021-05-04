@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 class ApiLoginController extends AbstractController
 {
     #[Route('/api/login/doctor', name: 'api_login', methods:['POST'])]
-    public function index(Request $request, UserRepository $userRepository, JwtHelper $jwthelper, DoctorRepository $doctorRepository, EntityManagerInterface $em, JwtRefreshRepository $jwtRefreshRepository): Response
+    public function index(Request $request, UserRepository $userRepository, JwtHelper $jwthelper, DoctorRepository $doctorRepository, EntityManagerInterface $em): Response
     {
         $jsonRecu = $request->getContent();
         try{
@@ -61,7 +61,7 @@ class ApiLoginController extends AbstractController
             $jwt_refresh = $jwthelper->createJWTRefresh($issuer_claim,$audience_claim,$data_complete_name,$data_email,$data_user_id, $role);
             $jwtrefresh_entity = new JwtRefresh();
             $jwtrefresh_entity->setJwtrefreshDateIssued(new \DateTime());            
-            $jwtrefresh_entity->setJwtrefreshValue(password_hash($jwt_refresh,PASSWORD_DEFAULT));
+            $jwtrefresh_entity->setJwtrefreshValue($jwt_refresh);
             $jwtrefresh_entity->setUser($data);            
             $em->persist($jwtrefresh_entity);
             $em->flush();
@@ -86,7 +86,7 @@ class ApiLoginController extends AbstractController
 
 
     #[Route('/api/login/patient', name: 'api_login_patient', methods:['POST'])]
-    public function patient(Request $request, UserRepository $userRepository, JwtHelper $jwthelper, PatientRepository $patientRepository): Response
+    public function patient(Request $request, UserRepository $userRepository, JwtHelper $jwthelper, PatientRepository $patientRepository, EntityManagerInterface $em): Response
     {
         $jsonRecu = $request->getContent();
         try{
@@ -126,6 +126,12 @@ class ApiLoginController extends AbstractController
             $audience_claim = "patient"; // audience
             $jwt = $jwthelper->createJWT($issuer_claim,$audience_claim,$data_complete_name,$data_email,$data_user_id, $role);
             $jwt_refresh = $jwthelper->createJWTRefresh($issuer_claim,$audience_claim,$data_complete_name,$data_email,$data_user_id, $role);
+            $jwtrefresh_entity = new JwtRefresh();
+            $jwtrefresh_entity->setJwtrefreshDateIssued(new \DateTime());            
+            $jwtrefresh_entity->setJwtrefreshValue($jwt_refresh);
+            $jwtrefresh_entity->setUser($data);            
+            $em->persist($jwtrefresh_entity);
+            $em->flush();
             return $this->json([
                 'status' => 200,
                 'message' => 'Connexion réussie',

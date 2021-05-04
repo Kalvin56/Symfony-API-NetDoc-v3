@@ -31,13 +31,7 @@ class ApiRefreshController extends AbstractController
             $jwtrefresh = $request->get('jwtrefresh');
             $jwtrefresh_decode = JWT::decode($jwtrefresh, $this->getParameter('jwt_refresh_secret'), array('HS256'));
             $user_id = $jwtrefresh_decode->data->id;
-            $jwtrefresh_entity_array = $jwtRefreshRepository->findBy(array('user' => $user_id));
-            foreach($jwtrefresh_entity_array as $row){
-                if(password_verify($jwtrefresh,$row->getJwtrefreshValue())){
-                    echo "hey";
-                    $jwtrefresh_entity = $jwtRefreshRepository->findOneBy(array('jwtrefresh_value' => $row->getJwtrefreshValue()));
-                }
-            }
+            $jwtrefresh_entity = $jwtRefreshRepository->findOneBy(array('user' => $user_id, "jwtrefresh_value" => $jwtrefresh));
             if(!$jwtrefresh_entity){
                 return $this->json([
                     "status" => 400,
@@ -57,7 +51,7 @@ class ApiRefreshController extends AbstractController
             }         
             $new_jwtrefresh = $jwthelper->createJWTRefresh("refresh", $type, $complete_name, $email, $user_id, $role);
             $new_jwt = $jwthelper->createJWT("refresh", $type, $complete_name, $email, $user_id, $role);
-            $jwtrefresh_entity->setJwtrefreshValue(password_hash($new_jwtrefresh, PASSWORD_DEFAULT));
+            $jwtrefresh_entity->setJwtrefreshValue($new_jwtrefresh);
             $jwtrefresh_entity->setJwtrefreshDateIssued(new \DateTime());
             $em->persist($jwtrefresh_entity);
             $em->flush();
