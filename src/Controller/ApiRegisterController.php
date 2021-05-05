@@ -107,10 +107,10 @@ class ApiRegisterController extends AbstractController
             $em->persist($doctor);
             $em->flush();
             return $this->json([
-                'status' => 200,
+                'status' => 201,
                 'message' => 'Création du compte réussie',
                 'doctor' => $doctor
-            ], 200,[],['groups' => 'show_doctor'] );
+            ], 201,[],['groups' => 'show_doctor'] );
         }catch(NotEncodableValueException $e){
             return $this->json([
                 'status' => 400,
@@ -192,10 +192,10 @@ class ApiRegisterController extends AbstractController
             $em->persist($patient);
             $em->flush();
             return $this->json([
-                'status' => 200,
+                'status' => 201,
                 'message' => 'Création du compte réussie',
                 'doctor' => $patient
-            ], 200,[],['groups' => 'show_patient'] );
+            ], 201,[],['groups' => 'show_patient'] );
         }catch(NotEncodableValueException $e){
             return $this->json([
                 'status' => 400,
