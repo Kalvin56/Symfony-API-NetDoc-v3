@@ -17,6 +17,13 @@ class ApiDoctorController extends AbstractController
         return $this->json($data,200,[],['groups' => 'show_doctor']);
     }
 
+    #[Route('/api/doctors/{id}', name: 'api_doctors_id', methods: ['GET'])]
+    public function doctor($id, DoctorRepository $doctorRepository): Response
+    {
+        // $data = $doctorRepository->findAll();
+        return $this->json($id,200);
+    }
+
     #[Route('/api/doctors/search', name: 'api_doctors_search', methods: ['POST'])]
     public function search(Request $request, DoctorRepository $doctorRepository): Response
     {

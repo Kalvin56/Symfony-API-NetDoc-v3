@@ -68,6 +68,8 @@ class ApiLoginController extends AbstractController
             return $this->json([
                 'status' => 200,
                 'message' => 'Connexion réussie',
+                'complete_name' => $data_complete_name,
+                'category' => "doctor",
                 'jwt' => $jwt,
                 'jwt_refresh' => $jwt_refresh
             ], 200);
@@ -135,6 +137,8 @@ class ApiLoginController extends AbstractController
             return $this->json([
                 'status' => 200,
                 'message' => 'Connexion réussie',
+                'complete_name' => $data_complete_name,
+                'category' => "patient",
                 'jwt' => $jwt,
                 'jwt_refresh' => $jwt_refresh
             ], 200);
