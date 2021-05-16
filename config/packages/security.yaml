@@ -19,12 +19,36 @@ security:
             stateless: true
             anonymous: true
         # doctor :
-        #     pattern : ^/api/doctor
+        #     pattern : ^/api/doctors
         #     anonymous : false
         #     stateless : true
         #     guard:
         #         authenticators:
         #             - App\Security\JwtAuthAuthenticator
+        doctors_id :
+            pattern : ^/api/doctors/
+            methods : [GET]
+            anonymous : false
+            stateless : true
+            guard:
+                authenticators:
+                    - App\Security\JwtAuthAuthenticator
+        patients_id :
+            pattern : ^/api/patients/
+            methods : [GET]
+            anonymous : false
+            stateless : true
+            guard:
+                authenticators:
+                    - App\Security\JwtAuthAuthenticator
+        logout :
+            pattern : ^/api/logout
+            methods : [POST]
+            anonymous : false
+            stateless : true
+            guard:
+                authenticators:
+                    - App\Security\JwtAuthAuthenticator
         main:
             anonymous: true
             provider: app_user_provider
@@ -40,4 +64,5 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/api/doctor, roles: ROLE_DOCTOR }
+        - { path: ^/api/doctors/, roles: ROLE_DOCTOR, methods: [GET] }
+        - { path: ^/api/patients/, roles: ROLE_PATIENT, methods: [GET] }

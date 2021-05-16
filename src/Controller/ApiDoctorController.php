@@ -20,11 +20,19 @@ class ApiDoctorController extends AbstractController
     #[Route('/api/doctors/{id}', name: 'api_doctors_id', methods: ['GET'])]
     public function doctor($id, DoctorRepository $doctorRepository): Response
     {
-        // $data = $doctorRepository->findAll();
-        return $this->json($id,200);
+        $data = $doctorRepository->find($id);
+        $user_id = $this->get('security.token_storage')->getToken()->getUser()->getId();
+        $data_id = $data->getUser()->getId();
+        if($user_id !== $data_id){
+            return $this->json([
+                "status" => 403,
+                "message" => "Access denied"
+            ], 403);
+        }
+        return $this->json($data,200,[],['groups' => 'show_doctor']);
     }
 
-    #[Route('/api/doctors/search', name: 'api_doctors_search', methods: ['POST'])]
+    #[Route('/api/search/doctors', name: 'api_search_doctors', methods: ['POST'])]
     public function search(Request $request, DoctorRepository $doctorRepository): Response
     {
         // obtenir une donnée
@@ -57,12 +65,10 @@ class ApiDoctorController extends AbstractController
                 "message" => "no doctor found"
             ],404);
         }
-        
-        
-        
+     
     }
 
-    #[Route('/api/doctors/cities', name: 'api_doctors_cities', methods: ['GET'])]
+    #[Route('/api/cities/doctors', name: 'api_cities_doctors', methods: ['GET'])]
     public function cities(DoctorRepository $doctorRepository): Response
     {
         $data = $doctorRepository->findCities();

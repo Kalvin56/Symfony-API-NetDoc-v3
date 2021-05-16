@@ -55,6 +55,7 @@ class ApiLoginController extends AbstractController
             $data_user_id = $data->getId();
             $doctor = $doctorRepository->findOneBy(array('user' => $data));
             $data_complete_name = $doctor->getDoctorCompleteName();
+            $data_doctor_id = $doctor->getId();
             $issuer_claim = "login/doctor"; // this can be the servername
             $audience_claim = "doctor"; // audience
             $jwt = $jwthelper->createJWT($issuer_claim,$audience_claim,$data_complete_name,$data_email,$data_user_id, $role);
@@ -69,7 +70,8 @@ class ApiLoginController extends AbstractController
                 'status' => 200,
                 'message' => 'Connexion réussie',
                 'complete_name' => $data_complete_name,
-                'category' => "doctor",
+                'category' => 'doctor',
+                'access_id' => $data_doctor_id,
                 'jwt' => $jwt,
                 'jwt_refresh' => $jwt_refresh
             ], 200);
@@ -124,6 +126,7 @@ class ApiLoginController extends AbstractController
             $data_user_id = $data->getId();
             $patient = $patientRepository->findOneBy(array('user' => $data));
             $data_complete_name = $patient->getPatientCompleteName();
+            $data_patient_id = $patient->getId();
             $issuer_claim = "login/patient"; // this can be the servername
             $audience_claim = "patient"; // audience
             $jwt = $jwthelper->createJWT($issuer_claim,$audience_claim,$data_complete_name,$data_email,$data_user_id, $role);
@@ -139,6 +142,7 @@ class ApiLoginController extends AbstractController
                 'message' => 'Connexion réussie',
                 'complete_name' => $data_complete_name,
                 'category' => "patient",
+                'access_id' => $data_patient_id,
                 'jwt' => $jwt,
                 'jwt_refresh' => $jwt_refresh
             ], 200);

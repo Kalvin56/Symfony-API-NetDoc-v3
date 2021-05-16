@@ -2,18 +2,25 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Repository\PatientRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ApiPatientController extends AbstractController
 {
-    #[Route('/api/patient', name: 'api_patient')]
-    public function index(): Response
+    #[Route('/api/patients/{id}', name: 'api_patients_id', methods: ['GET'])]
+    public function doctor($id, PatientRepository $patientRepository): Response
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/ApiPatientController.php',
-        ]);
+        $data = $patientRepository->find($id);
+        $user_id = $this->get('security.token_storage')->getToken()->getUser()->getId();
+        $data_id = $data->getUser()->getId();
+        if($user_id !== $data_id){
+            return $this->json([
+                "status" => 403,
+                "message" => "Access denied"
+            ], 403);
+        }
+        return $this->json($data,200,[],['groups' => 'show_patient']);
     }
 }

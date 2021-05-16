@@ -44,10 +44,12 @@ class ApiRefreshController extends AbstractController
             if($type === "doctor"){
                 $doctor = $doctorRepository->findOneBy(array("user" => $user_id));
                 $complete_name = $doctor->getDoctorCompleteName();
+                $access_id = $doctor->getId();
             }
             if($type === "patient"){
                 $patient = $patientRepository->findOneBy(array("user" => $user_id));
                 $complete_name = $patient->getPatientCompleteName();
+                $access_id = $patient->getId();
             }         
             $new_jwtrefresh = $jwthelper->createJWTRefresh("refresh", $type, $complete_name, $email, $user_id, $role);
             $new_jwt = $jwthelper->createJWT("refresh", $type, $complete_name, $email, $user_id, $role);
@@ -57,8 +59,12 @@ class ApiRefreshController extends AbstractController
             $em->flush();
             return $this->json([
                 "status" => 200,
+                'message' => 'Refresh réussi',
+                'complete_name' => $complete_name,
+                'category' => $type,
+                'access_id' => $access_id,
                 "jwt" => $new_jwt,
-                "jwtrefresh" => $new_jwtrefresh
+                "jwt_refresh" => $new_jwtrefresh
             ],200);
             // dd(password_verify($jwtrefresh,$jwtrefresh_entity->getJwtrefreshValue()));
 
