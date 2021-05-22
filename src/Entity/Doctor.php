@@ -84,9 +84,15 @@ class Doctor
      */
     private $doctor_domain_id;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Appointment::class, mappedBy="appointment_doctor")
+     */
+    private $appointments;
+
     public function __construct()
     {
         $this->doctor_domain_id = new ArrayCollection();
+        $this->appointments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -210,6 +216,36 @@ class Doctor
     public function removeDoctorDomainId(Domain $doctorDomainId): self
     {
         $this->doctor_domain_id->removeElement($doctorDomainId);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Appointment[]
+     */
+    public function getAppointments(): Collection
+    {
+        return $this->appointments;
+    }
+
+    public function addAppointment(Appointment $appointment): self
+    {
+        if (!$this->appointments->contains($appointment)) {
+            $this->appointments[] = $appointment;
+            $appointment->setAppointmentDoctor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAppointment(Appointment $appointment): self
+    {
+        if ($this->appointments->removeElement($appointment)) {
+            // set the owning side to null (unless already changed)
+            if ($appointment->getAppointmentDoctor() === $this) {
+                $appointment->setAppointmentDoctor(null);
+            }
+        }
 
         return $this;
     }

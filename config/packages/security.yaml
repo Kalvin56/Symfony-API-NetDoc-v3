@@ -41,6 +41,14 @@ security:
             guard:
                 authenticators:
                     - App\Security\JwtAuthAuthenticator
+        appointment_create :
+            pattern : ^/api/appointment/create
+            methods : [POST]
+            anonymous : false
+            stateless : true
+            guard:
+                authenticators:
+                    - App\Security\JwtAuthAuthenticator
         logout :
             pattern : ^/api/logout
             methods : [POST]
@@ -65,4 +73,5 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/api/doctors/, roles: ROLE_DOCTOR, methods: [GET] }
+        - { path: ^/api/appointment/create, roles: ROLE_DOCTOR, methods: [POST] }
         - { path: ^/api/patients/, roles: ROLE_PATIENT, methods: [GET] }
