@@ -39,7 +39,7 @@ class Patient
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"show_patient"})
+     * @Groups({"show_patient", "show_appointment"})
      */
     private $patient_complete_name;
 

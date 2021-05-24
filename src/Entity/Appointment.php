@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\AppointmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=AppointmentRepository::class)
@@ -21,28 +22,33 @@ class Appointment
     /**
      * @ORM\Column(type="date")
      * @Assert\NotBlank(message = "Le champ date ne doit pas être vide")
+     * @Groups({"show_appointment"})
      */
     private $appointment_date;
 
     /**
      * @ORM\Column(type="time")
      * @Assert\NotBlank(message = "Le champ heure ne doit pas être vide")
+     * @Groups({"show_appointment"})
      */
     private $appointment_time;
 
     /**
      * @ORM\Column(type="integer")
      * @Assert\NotBlank(message = "Le champ durée ne doit pas être vide")
+     * @Groups({"show_appointment"})
      */
     private $appointment_duration;
 
     /**
      * @ORM\ManyToOne(targetEntity=Patient::class, inversedBy="appointments")
+     * @Groups({"show_appointment"})
      */
     private $appointment_patient;
 
     /**
      * @ORM\ManyToOne(targetEntity=Doctor::class, inversedBy="appointments")
+     * @Groups({"show_appointment"})
      */
     private $appointment_doctor;
 
@@ -53,6 +59,7 @@ class Appointment
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"show_appointment"})
      */
     private $appointment_status;
 

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Appointment;
+use App\Repository\AppointmentRepository;
 use App\Repository\DoctorRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,7 @@ use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 
 class ApiAppointmentController extends AbstractController
 {
-    #[Route('/api/appointment/create', name: 'api_appointment_create', methods:['POST'])]
+    #[Route('/api/appointments/create', name: 'api_appointments_create', methods:['POST'])]
     public function index(Request $request, SerializerInterface $serializer, EntityManagerInterface $em,  ValidatorInterface $validator, DoctorRepository $doctorRepository): Response
     {
         $jsonRecu = $request->getContent();
@@ -49,5 +50,21 @@ class ApiAppointmentController extends AbstractController
                 'message' => $e->getMessage()
             ], 400);
         }
+    }
+
+    #[Route('/api/appointments/doctors/{id}', name: 'api_appointments_doctors_id', methods:['GET'])]
+    public function doctor($id, AppointmentRepository $appointmentRepository): Response
+    {
+        $data = $appointmentRepository->findOneBy(array('appointment_doctor' => $id));
+        $user_id = $this->get('security.token_storage')->getToken()->getUser()->getId();
+        $data_id = $data->getAppointmentDoctor()->getUser()->getId();
+        $data_complete = $appointmentRepository->findBy(array('appointment_doctor' => $id));
+        if($user_id !== $data_id){
+            return $this->json([
+                "status" => 403,
+                "message" => "Access denied"
+            ], 403);
+        }
+        return $this->json($data_complete,200,[],['groups' => 'show_appointment']);
     }
 }
