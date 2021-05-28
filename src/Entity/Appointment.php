@@ -16,6 +16,7 @@ class Appointment
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"show_appointment"})
      */
     private $id;
 

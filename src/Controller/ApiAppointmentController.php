@@ -58,7 +58,7 @@ class ApiAppointmentController extends AbstractController
         $data = $appointmentRepository->findOneBy(array('appointment_doctor' => $id));
         $user_id = $this->get('security.token_storage')->getToken()->getUser()->getId();
         $data_id = $data->getAppointmentDoctor()->getUser()->getId();
-        $data_complete = $appointmentRepository->findBy(array('appointment_doctor' => $id));
+        $data_complete = $appointmentRepository->findBy(array('appointment_doctor' => $id), array('appointment_date' => 'DESC'));
         if($user_id !== $data_id){
             return $this->json([
                 "status" => 403,
@@ -67,4 +67,88 @@ class ApiAppointmentController extends AbstractController
         }
         return $this->json($data_complete,200,[],['groups' => 'show_appointment']);
     }
+
+    #[Route('/api/appointments/status/{id}', name: 'api_appointments_status_id', methods:['POST'])]
+    public function status($id, AppointmentRepository $appointmentRepository, Request $request, EntityManagerInterface $em): Response
+    {
+
+        $data = $appointmentRepository->find($id);
+
+        $request = $this->transformJsonBody($request);
+
+        if (!$request || !$request->get('status')){
+            return $this->json([
+                "status" => 400,
+                "message" => "Veuillez renseigner le status"
+            ],400);
+        }
+
+        $status = $request->get('status');
+
+        if ($status !== 1 && $status !== 2 & $status !== 3){
+            return $this->json([
+                "status" => 400,
+                "message" => "Veuillez renseigner un status correct"
+            ],400);
+        }
+        
+        $user_id = $this->get('security.token_storage')->getToken()->getUser()->getId();
+        $type = $this->get('security.token_storage')->getToken()->getUser()->getType();
+
+        if($type !== "doctor" && $type !== "patient"){
+            return $this->json([
+                "status" => 400,
+                "message" => "erreur"
+            ],400);
+        }
+
+        if($type == "doctor"){
+
+            $data_id_doctor = $data->getAppointmentDoctor()->getUser()->getId();
+
+            if($user_id !== $data_id_doctor){
+                return $this->json([
+                    "status" => 403,
+                    "message" => "Access denied"
+                ], 403);
+            }
+
+        }
+
+        if($type == "patient"){
+
+            $data_id_patient = $data->getAppointmentPatient()->getUser()->getId();
+
+            if($user_id !== $data_id_patient){
+                return $this->json([
+                    "status" => 403,
+                    "message" => "Access denied"
+                ], 403);
+            }
+
+        }
+
+        $data->setAppointmentStatus($status);
+
+        $em->persist($data);
+        $em->flush();
+        
+        return $this->json([
+            "status" => 200,
+            "message" => "Status modifié"
+        ], 200);
+    }
+
+    protected function transformJsonBody(\Symfony\Component\HttpFoundation\Request $request) {
+        $data = json_decode($request->getContent(), true);
+
+        if ($data === null) {
+            return $request;
+        }
+
+        $request->request->replace($data);
+
+        return $request;
+    }
+    
 }
