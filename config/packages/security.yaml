@@ -57,9 +57,25 @@ security:
             guard:
                 authenticators:
                     - App\Security\JwtAuthAuthenticator
+        appointments_patient_id :
+            pattern : ^/api/appointments/patients
+            methods : [GET]
+            anonymous : false
+            stateless : true
+            guard:
+                authenticators:
+                    - App\Security\JwtAuthAuthenticator
         appointments_status :
             pattern : ^/api/appointments/status
             methods : [POST]
+            anonymous : false
+            stateless : true
+            guard:
+                authenticators:
+                    - App\Security\JwtAuthAuthenticator
+        appointments_take :
+            pattern : ^/api/appointments/take
+            methods : [GET]
             anonymous : false
             stateless : true
             guard:
@@ -90,6 +106,8 @@ security:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/api/doctors/, roles: ROLE_DOCTOR, methods: [GET] }
         - { path: ^/api/appointments/create, roles: ROLE_DOCTOR, methods: [POST] }
+        - { path: ^/api/appointments/patients, roles: ROLE_PATIENT, methods: [GET] }
         - { path: ^/api/appointments/doctors, roles: ROLE_DOCTOR, methods: [GET] }
         - { path: ^/api/appointments/status, roles: [ROLE_DOCTOR,ROLE_PATIENT], methods: [POST] }
+        - { path: ^/api/appointments/take, roles: ROLE_PATIENT, methods: [GET] }
         - { path: ^/api/patients/, roles: ROLE_PATIENT, methods: [GET] }

@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use DateTime;
 use App\Entity\Appointment;
-use App\Repository\AppointmentRepository;
 use App\Repository\DoctorRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\AppointmentRepository;
+use App\Repository\PatientRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,6 +29,10 @@ class ApiAppointmentController extends AbstractController
             $appointment =  $serializer->deserialize($jsonRecu, Appointment::class, 'json');
             $appointment->setAppointmentStatus(1);
             $appointment->setAppointmentDoctor($doctor);
+            $string = $appointment->getAppointmentDate()->format('Y-m-d H:i:s');
+            $date = new \DateTime($string);
+            $date->setTimezone(new \DateTimeZone('UTC'));
+            $appointment->setAppointmentDate($date);
 
             $errors_appointment = $validator->validate($appointment);
             if(count($errors_appointment) > 0){
@@ -56,9 +62,55 @@ class ApiAppointmentController extends AbstractController
     public function doctor($id, AppointmentRepository $appointmentRepository): Response
     {
         $data = $appointmentRepository->findOneBy(array('appointment_doctor' => $id));
+        if(!$data){
+            return $this->json([
+                "status" => 404,
+                "message" => "Aucun rendez-vous"
+            ], 404);
+        }
         $user_id = $this->get('security.token_storage')->getToken()->getUser()->getId();
         $data_id = $data->getAppointmentDoctor()->getUser()->getId();
         $data_complete = $appointmentRepository->findBy(array('appointment_doctor' => $id), array('appointment_date' => 'DESC'));
+
+        // foreach ($data_complete as $row) {
+        //     $string = $row->getAppointmentDate()->format('Y-m-d H:i:s');
+        //     $date = new \DateTime($string);
+        //     $date->setTimezone(new \DateTimeZone('Europe/Paris'));
+        //     $row->setAppointmentDate($date);
+        //     // dump($date);
+        // }
+        
+        if($user_id !== $data_id){
+            return $this->json([
+                "status" => 403,
+                "message" => "Access denied"
+            ], 403);
+        }
+        return $this->json($data_complete,200,[],['groups' => 'show_appointment']);
+    }
+
+    #[Route('/api/appointments/patients/{id}', name: 'api_appointments_patients_id', methods:['GET'])]
+    public function patient($id, AppointmentRepository $appointmentRepository): Response
+    {
+        $data = $appointmentRepository->findOneBy(array('appointment_patient' => $id));
+        if(!$data){
+            return $this->json([
+                "status" => 404,
+                "message" => "Aucun rendez-vous"
+            ], 404);
+        }
+        $user_id = $this->get('security.token_storage')->getToken()->getUser()->getId();
+        $data_id = $data->getAppointmentPatient()->getUser()->getId();
+        $data_complete = $appointmentRepository->findBy(array('appointment_patient' => $id), array('appointment_date' => 'DESC'));
+
+        // foreach ($data_complete as $row) {
+        //     $string = $row->getAppointmentDate()->format('Y-m-d H:i:s');
+        //     $date = new \DateTime($string);
+        //     $date->setTimezone(new \DateTimeZone('Europe/Paris'));
+        //     $row->setAppointmentDate($date);
+        //     // dump($date);
+        // }
+        
         if($user_id !== $data_id){
             return $this->json([
                 "status" => 403,
@@ -126,9 +178,39 @@ class ApiAppointmentController extends AbstractController
                 ], 403);
             }
 
+            $data->setAppointmentPatient($data_id_patient);
+
         }
 
         $data->setAppointmentStatus($status);
+
+        $em->persist($data);
+        $em->flush();
+        
+        return $this->json([
+            "status" => 200,
+            "message" => "Status modifié"
+        ], 200);
+    }
+
+    #[Route('/api/appointments/take/{id}', name: 'api_appointments_status_take', methods:['GET'])]
+    public function take($id, AppointmentRepository $appointmentRepository, EntityManagerInterface $em, PatientRepository $patientRepository): Response
+    {
+
+        $data = $appointmentRepository->find($id);
+        
+        $user_id = $this->get('security.token_storage')->getToken()->getUser()->getId();
+        $patient_id = $patientRepository->findOneBy(array('user_id' => $user_id));
+
+        if($data->getAppointmentPatient() != null){
+            return $this->json([
+                "status" => 400,
+                "message" => "Rendez-vous déja pris !"
+            ], 400);
+        }
+
+        $data->setAppointmentPatient($patient_id);
+        $data->setAppointmentStatus(3);
 
         $em->persist($data);
         $em->flush();

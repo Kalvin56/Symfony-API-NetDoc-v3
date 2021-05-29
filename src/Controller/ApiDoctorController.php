@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use DateTime;
 use App\Repository\DoctorRepository;
+use App\Repository\AppointmentRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,7 +35,7 @@ class ApiDoctorController extends AbstractController
     }
 
     #[Route('/api/search/doctors', name: 'api_search_doctors', methods: ['POST'])]
-    public function search(Request $request, DoctorRepository $doctorRepository): Response
+    public function search(Request $request, DoctorRepository $doctorRepository, AppointmentRepository $appointmentRepository): Response
     {
         // obtenir une donnée
         // méthode de base :
@@ -57,8 +59,16 @@ class ApiDoctorController extends AbstractController
                  
         $data = $doctorRepository->findOneBy(array('doctor_complete_name' => $complete_name, 'doctor_city' => $city ));
 
+        $now = new \DateTime();
+
+        // $appointments = $appointmentRepository->findBy(array('appointment_doctor' => $data->getId(), 'appointment_status' => 1), array('appointment_date' => 'DESC'));
+        $appointments = $appointmentRepository->findByDate($now,$data->getId(),1);
+
         if($data){
-            return $this->json($data,200,[],['groups' => 'show_doctor']);
+            return $this->json([
+                "infos" => $data,
+                "appointments" => $appointments
+            ],200,[],['groups' => ['show_doctor', 'show_appointment']]);
         }else{
             return $this->json([
                 "status" => 404,

@@ -21,18 +21,11 @@ class Appointment
     private $id;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="datetime")
      * @Assert\NotBlank(message = "Le champ date ne doit pas être vide")
      * @Groups({"show_appointment"})
      */
     private $appointment_date;
-
-    /**
-     * @ORM\Column(type="time")
-     * @Assert\NotBlank(message = "Le champ heure ne doit pas être vide")
-     * @Groups({"show_appointment"})
-     */
-    private $appointment_time;
 
     /**
      * @ORM\Column(type="integer")
@@ -77,19 +70,6 @@ class Appointment
     public function setAppointmentDate(\DateTimeInterface $appointment_date): self
     {
         $this->appointment_date = $appointment_date;
-
-        return $this;
-    }
-
-    public function getAppointmentTime(): ?\DateTimeInterface
-    {
-        return $this->appointment_time;
-    }
-
-    public function setAppointmentTime(\DateTimeInterface $appointment_time): self
-    {
-        $this->appointment_time = $appointment_time;
-
         return $this;
     }
 

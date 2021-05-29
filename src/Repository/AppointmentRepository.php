@@ -19,6 +19,25 @@ class AppointmentRepository extends ServiceEntityRepository
         parent::__construct($registry, Appointment::class);
     }
 
+    /**
+    * @return Appointment[] Returns an array of Appointment objects
+    */
+    public function findByDate($now, $id, $status)
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.appointment_date > :date')
+            ->andWhere('a.appointment_doctor = :id')
+            ->andWhere('a.appointment_status = :status')
+            ->setParameter('date', $now)
+            ->setParameter('id', $id)
+            ->setParameter('status', $status)
+            ->orderBy('a.appointment_date', 'DESC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     // /**
     //  * @return Appointment[] Returns an array of Appointment objects
     //  */
