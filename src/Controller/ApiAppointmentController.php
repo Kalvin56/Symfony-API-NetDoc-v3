@@ -121,7 +121,7 @@ class ApiAppointmentController extends AbstractController
     }
 
     #[Route('/api/appointments/status/{id}', name: 'api_appointments_status_id', methods:['POST'])]
-    public function status($id, AppointmentRepository $appointmentRepository, Request $request, EntityManagerInterface $em): Response
+    public function status($id, AppointmentRepository $appointmentRepository, Request $request, EntityManagerInterface $em, PatientRepository $patientRepository): Response
     {
 
         $data = $appointmentRepository->find($id);
@@ -178,7 +178,9 @@ class ApiAppointmentController extends AbstractController
                 ], 403);
             }
 
-            $data->setAppointmentPatient($data_id_patient);
+            $patient = $patientRepository->findOneBy(array('user' => $data_id_patient));
+
+            $data->setAppointmentPatient($patient);
 
         }
 
@@ -200,7 +202,7 @@ class ApiAppointmentController extends AbstractController
         $data = $appointmentRepository->find($id);
         
         $user_id = $this->get('security.token_storage')->getToken()->getUser()->getId();
-        $patient_id = $patientRepository->findOneBy(array('user_id' => $user_id));
+        $patient_id = $patientRepository->findOneBy(array('user' => $user_id));
 
         if($data->getAppointmentPatient() != null){
             return $this->json([
